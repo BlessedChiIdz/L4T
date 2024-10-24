@@ -56,21 +56,22 @@ impl Matrix{
     }
 
     fn Multiply(data1:Matrix,data2:Matrix) -> Result<Matrix,String> {
-        if data1.i != data2.i || data1.j != data2.j{
+        if data1.i != data2.j || data1.j != data2.i{
             return Err(String::from("not same size"));
         }
-        let i = data1.i;
-        let j = data1.j;
-        let mut matrixRet:Vec<Vec<i32>> = vec![];
-        for q in 0..(data1.data.len() as usize){
-            let mut arr:Vec<i32> = vec![];
-            for w in 0..(data1.data[0].len() as usize){
-                let sum = data1.data[q][w] * data2.data[q][w];
-                arr.push(sum);
+        let mut matrixRet = vec![];
+        for i in 0..data1.data.len(){
+            let mut matrix = vec![];
+            for j in 0..data2.data[0].len(){
+                let mut sum = 0;
+                for q in 0..data1.data[0].len(){
+                    sum += data1.data[i][q] * data2.data[q][j];
+                }
+                matrix.push(sum);
             }
-            matrixRet.push(arr);
+            matrixRet.push(matrix);
         }
-        return Ok(Matrix::constructor(matrixRet, i, j));
+        return Ok(Matrix::constructor(matrixRet, data1.data.len() as i32, data2.data[0].len() as i32));
     }
 
     fn Eq(data1:Matrix,data2:Matrix) -> Result<bool,String> {
@@ -198,14 +199,15 @@ mod tests {
     fn testMultiply() {
         let i:i32 = 2;
         let j:i32 = 3;
-        let data:Vec<Vec<i32>> = vec![vec![2;i as usize];j as usize];
-        let matrix1 = Matrix::constructor(data.clone(), i.clone(), j.clone());
-        let matrix2 = Matrix::constructor(data, i, j);
+        let data1:Vec<Vec<i32>> = vec![vec![2;i as usize];j as usize];
+        let data2:Vec<Vec<i32>> = vec![vec![2;j as usize];i as usize];
+        let matrix1 = Matrix::constructor(data1, i,j);
+        let matrix2 = Matrix::constructor(data2, j,i);
         let result = Matrix::Multiply(matrix1, matrix2);
         let expected = Matrix {
-            data: vec![vec![4;i as usize];j as usize],
-            i,
-            j
+            data: vec![vec![8;j as usize];j as usize],
+            i:3,
+            j:3
         };
         assert_eq!(result.unwrap(),expected);
     }
